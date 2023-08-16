@@ -28,7 +28,7 @@ export default function Navbar() {
   return (
     <Menu
       style={{ justifyContent: "flex-end" }}
-      defaultSelectedKeys={[location.pathname.slice(1)]}
+      defaultSelectedKeys={[location.pathname.slice(1) || "straddle-simulator"]}
       mode="horizontal"
       items={items}
     />
