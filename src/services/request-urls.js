@@ -1,5 +1,5 @@
 export const urls = {
-  expiries: "/optionsimulator/simulatorexpiries",
+  expiries: "/opstra/api/optionsimulator/simulatorexpiries",
   optionChain: ({ timeStamp, stock, expiry }) =>
-    `/optionsimulator/optionchain/${timeStamp}&${stock}&${expiry}`,
+    `/opstra/api/optionsimulator/optionchain/${timeStamp}&${stock}&${expiry}`,
 };
