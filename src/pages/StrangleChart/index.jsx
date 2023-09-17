@@ -68,17 +68,17 @@ const getLTP = async (timeStamp, options) => {
     try {
       const res = await getOptionChain({
         timeStamp,
-        stock: options.index.value,
-        expiry: options.expiry.value,
+        stock: options.index,
+        expiry: options.expiry,
       });
       let callData = null;
       callData = res.data.optionchaindata.find(
-        (item) => item.Strikes === options.callStrike.value
+        (item) => item.Strikes === options.callStrike
       );
 
       let putData = null;
       callData = res.data.optionchaindata.find(
-        (item) => item.Strikes === options.putStrike.value
+        (item) => item.Strikes === options.putStrike
       );
 
       const callLTP = strToNumberRound(callData?.CallLTP, 2);
@@ -231,10 +231,10 @@ export default function StraddleChart() {
           <label id="callStrike">Call Strike</label>
           <StrikePriceSearch
             timeStamp={startTimeStamp}
-            expiry={form.expiry?.value ?? ""}
-            stock={form.index?.value ?? ""}
+            expiry={form.expiry}
+            stock={form.index}
             value={form.callStrike}
-            onChange={(_, newValue) => updateForm("callStrike", newValue)}
+            onChange={(callStrike) => updateForm("callStrike", callStrike)}
             fullWidth
           />
         </FilterItem>
@@ -243,11 +243,10 @@ export default function StraddleChart() {
           <label id="putStrike">Put Strike</label>
           <StrikePriceSearch
             timeStamp={startTimeStamp}
-            expiry={form.expiry?.value ?? ""}
-            stock={form.index?.value ?? ""}
+            expiry={form.expiry}
+            stock={form.index}
             value={form.putStrike}
-            onChange={(_, newValue) => updateForm("putStrike", newValue)}
-            fullWidth
+            onChange={(putStrike) => updateForm("putStrike", putStrike)}
           />
         </FilterItem>
 
@@ -255,7 +254,7 @@ export default function StraddleChart() {
           <label>Expiry</label>
           <ExpirySearch
             value={form.expiry}
-            onChange={(_, newValue) => updateForm("expiry", newValue)}
+            onChange={(expiry) => updateForm("expiry", expiry)}
           />
         </FilterItem>
 
@@ -263,7 +262,7 @@ export default function StraddleChart() {
           <label>Index</label>
           <StockSearch
             value={form.index}
-            onChange={(_, newValue) => updateForm("index", newValue)}
+            onChange={(index) => updateForm("index", index)}
           />
         </FilterItem>
 

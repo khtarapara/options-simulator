@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from "react";
 import dayjs from "dayjs";
 import { cloneDeep } from "loadsh";
-import { ExpirySearch } from "../../components/ExpirySearch";
-import { StockSearch } from "../../components/StockSearch";
-import { TimeFrameSelect } from "../../components/TimeFrameSelect";
-import { DateTimePicker } from "../../components/ui/DatePicker";
-import { StrikePriceSearch } from "../../components/StrikePriceSearch";
 import StraddleChart from "./StraddleChart";
 import { getOptionChain } from "../../services/api-services";
 import { ChartContainer } from "./StyledComponents";
@@ -14,11 +15,8 @@ import { round, strToNumberRound } from "../../utils/utils";
 import Controls from "./Controls";
 import ChartSummary from "./ChartSummary";
 import { useChart } from "../../hooks/useChart";
-import {
-  FilterContainer,
-  FilterItem,
-} from "../../components/StyledComponents/Filters";
 import { useForm } from "../../hooks/useForm";
+import StraddleForm from "../../components/StraddleForm";
 
 const tradeActions = {
   ADD: "ADD",
@@ -125,13 +123,13 @@ const getLTP = async (timeStamp, options) => {
     try {
       const res = await getOptionChain({
         timeStamp,
-        stock: options.index.value,
-        expiry: options.expiry.value,
+        stock: options.index,
+        expiry: options.expiry,
       });
       let strikeData = null;
       if (options.strikePrice) {
         strikeData = res.data.optionchaindata.find(
-          (item) => item.Strikes === options.strikePrice.value
+          (item) => item.Strikes === options.strikePrice
         );
       }
       const callLTP = strToNumberRound(strikeData?.CallLTP, 2);
@@ -162,11 +160,23 @@ const getLTP = async (timeStamp, options) => {
 };
 
 const initForm = {
-  strikePrice: null,
-  expiry: null,
-  index: null,
+  strikePrice: "",
+  expiry: "",
+  index: "",
   timeFrame: 5,
   date: dayjs().startOf("day"),
+};
+
+const initialSummary = {
+  spot: 0,
+  high: 0,
+  low: 0,
+  future: 0,
+  lotSize: 0,
+  iv: 0,
+  straddle: 0,
+  call: 0,
+  put: 0,
 };
 
 export default function Straddle() {
@@ -182,17 +192,7 @@ export default function Straddle() {
     handleChartForward,
   } = useChart({ getLTP, options: form });
 
-  const [summary, setSummary] = useState({
-    spot: 0,
-    high: 0,
-    low: 0,
-    future: 0,
-    lotSize: 0,
-    iv: 0,
-    straddle: 0,
-    call: 0,
-    put: 0,
-  });
+  const [summary, setSummary] = useState(initialSummary);
 
   const [{ nextId, trades }, dispatch] = useReducer(tradeReducer, {
     nextId: 1,
@@ -249,65 +249,40 @@ export default function Straddle() {
     dispatch({ type: tradeActions.DELETE, payload: index });
   }, []);
 
+  const ltp = useMemo(
+    () => (data.slice(-1).length > 0 ? data.slice(-1)[0] : null),
+    [data]
+  );
+
+  // Sync the summary with Data
   useEffect(() => {
-    if (data.length > 0) {
-      const lastData = data[data.length - 1];
+    if (ltp) {
       setSummary((prev) => {
         return {
-          ...lastData,
-          high: Math.max(lastData.spot, prev.high),
-          low: prev.low ? Math.min(lastData.spot, prev.low) : lastData.spot,
+          ...ltp,
+          high: Math.max(ltp.spot, prev.high),
+          low: prev.low ? Math.min(ltp.spot, prev.low) : ltp.spot,
         };
       });
-
-      dispatch({ type: tradeActions.UPDATE_PL, payload: lastData });
     }
-  }, [data]);
+  }, [ltp]);
+
+  // Sync trades with Data
+  useEffect(() => {
+    if (ltp) {
+      dispatch({ type: tradeActions.UPDATE_PL, payload: ltp });
+    }
+  }, [ltp]);
 
   return (
     <>
       <h1>Straddle Simulator</h1>
-      <FilterContainer>
-        <FilterItem>
-          <label id="strikePrice">Strike</label>
-          <StrikePriceSearch
-            timeStamp={startTimeStamp}
-            expiry={form.expiry?.value ?? ""}
-            stock={form.index?.value ?? ""}
-            value={form.strikePrice}
-            onChange={(_, newValue) => updateForm("strikePrice", newValue)}
-            fullWidth
-          />
-        </FilterItem>
-        <FilterItem>
-          <label>Expiry</label>
-          <ExpirySearch
-            value={form.expiry}
-            onChange={(_, newValue) => updateForm("expiry", newValue)}
-          />
-        </FilterItem>
-        <FilterItem>
-          <label>Index</label>
-          <StockSearch
-            value={form.index}
-            onChange={(_, newValue) => updateForm("index", newValue)}
-          />
-        </FilterItem>
-        <FilterItem>
-          <label>Time Frame</label>
-          <TimeFrameSelect
-            value={form.timeFrame}
-            onChange={(timeFrame) => updateForm("timeFrame", timeFrame)}
-          />
-        </FilterItem>
-        <FilterItem>
-          <label>Date</label>
-          <DateTimePicker
-            value={form.date}
-            onChange={(time) => updateForm("date", time)}
-          />
-        </FilterItem>
-      </FilterContainer>
+
+      <StraddleForm
+        form={form}
+        onUpdate={updateForm}
+        timeStamp={startTimeStamp}
+      />
 
       <Controls
         disableAll={!form.strikePrice}
@@ -323,6 +298,7 @@ export default function Straddle() {
         <ChartSummary summary={summary} />
         <StraddleChart labels={labels} data={data} onTradeStart={addTrade} />
       </ChartContainer>
+
       {trades.length > 0 && (
         <ProfitLossTable
           data={trades}
@@ -330,8 +306,8 @@ export default function Straddle() {
           onTradeToggle={toggleTradeStatus}
           onNoteChange={handleNoteChange}
           onDeleteTrade={deleteTrade}
-          index={form.index.value}
-          expiry={form.expiry.value}
+          index={form.index}
+          expiry={form.expiry}
           date={form.date.unix()}
         />
       )}

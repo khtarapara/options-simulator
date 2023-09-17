@@ -14,20 +14,12 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Spin, Alert } from "antd";
 import { useForm } from "../../hooks/useForm";
 import dayjs from "dayjs";
-import {
-  FilterContainer,
-  FilterItem,
-} from "../../components/StyledComponents/Filters";
-import { StrikePriceSearch } from "../../components/StrikePriceSearch";
-import { ExpirySearch } from "../../components/ExpirySearch";
-import { StockSearch } from "../../components/StockSearch";
-import { TimeFrameSelect } from "../../components/TimeFrameSelect";
 import { useChart } from "../../hooks/useChart";
 import { round, strToNumberRound } from "../../utils/utils";
 import { getOptionChain } from "../../services/api-services";
-import { DateTimePicker } from "../../components/ui/DatePicker";
 import Tabs from "../../components/ui/Tabs";
 import { SpinContainer } from "./StyledComponents";
+import StraddleForm from "../../components/StraddleForm";
 
 ChartJS.register(
   CategoryScale,
@@ -53,13 +45,13 @@ const getLTP = async (timeStamp, options) => {
     try {
       const res = await getOptionChain({
         timeStamp,
-        stock: options.index.value,
-        expiry: options.expiry.value,
+        stock: options.index,
+        expiry: options.expiry,
       });
       let strikeData = null;
       if (options.strikePrice) {
         strikeData = res.data.optionchaindata.find(
-          (item) => item.Strikes === options.strikePrice.value
+          (item) => item.Strikes === options.strikePrice
         );
       }
       const callLTP = strToNumberRound(strikeData?.CallLTP, 2);
@@ -205,47 +197,11 @@ export default function StraddleChart() {
   return (
     <>
       <h1>Straddle Chart</h1>
-      <FilterContainer>
-        <FilterItem>
-          <label id="strikePrice">Strike</label>
-          <StrikePriceSearch
-            timeStamp={startTimeStamp}
-            expiry={form.expiry?.value ?? ""}
-            stock={form.index?.value ?? ""}
-            value={form.strikePrice}
-            onChange={(_, newValue) => updateForm("strikePrice", newValue)}
-            fullWidth
-          />
-        </FilterItem>
-        <FilterItem>
-          <label>Expiry</label>
-          <ExpirySearch
-            value={form.expiry}
-            onChange={(_, newValue) => updateForm("expiry", newValue)}
-          />
-        </FilterItem>
-        <FilterItem>
-          <label>Index</label>
-          <StockSearch
-            value={form.index}
-            onChange={(_, newValue) => updateForm("index", newValue)}
-          />
-        </FilterItem>
-        <FilterItem>
-          <label>Time Frame</label>
-          <TimeFrameSelect
-            value={form.timeFrame}
-            onChange={(timeFrame) => updateForm("timeFrame", timeFrame)}
-          />
-        </FilterItem>
-        <FilterItem>
-          <label>Date</label>
-          <DateTimePicker
-            value={form.date}
-            onChange={(time) => updateForm("date", time)}
-          />
-        </FilterItem>
-      </FilterContainer>
+      <StraddleForm
+        form={form}
+        onUpdate={updateForm}
+        timeStamp={startTimeStamp}
+      />
 
       <Tabs defaultActiveKey="straddle" items={tabItems} />
     </>

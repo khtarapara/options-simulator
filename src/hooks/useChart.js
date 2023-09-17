@@ -5,7 +5,7 @@ export const useChart = ({
   getLTP,
   options = {
     timeFrame: 5,
-    date: dayjs(dayjs().format("DD-MM-YYYY"), "DD-MM-YYYY").unix(),
+    date: dayjs().startOf("day").unix(),
   },
 }) => {
   const [startTimeStamp, setStartTimeStamp] = useState(0);
@@ -21,6 +21,7 @@ export const useChart = ({
     setCurrentTimeStamp((prev) => prev + forwardBy * 60);
   }, []);
 
+  // sync the data with time currentTimeStamp.
   useEffect(() => {
     const forwardData = async () => {
       try {

@@ -14,7 +14,7 @@ export const StrikePriceSearch = ({
   useEffect(() => {
     (async () => {
       try {
-        if (stock !== "" && expiry !== "" && timeStamp !== 0) {
+        if (stock && expiry && timeStamp) {
           const res = await getOptionChain({ timeStamp, stock, expiry });
           const strikes = res.data.optionchaindata.map((item) => ({
             label: String(item.Strikes),
