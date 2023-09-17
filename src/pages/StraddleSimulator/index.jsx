@@ -30,12 +30,12 @@ const tradeActions = {
 };
 
 const tradeReducer = (state, { type, payload }) => {
-  const newTrades = cloneDeep(state.trades);
   switch (type) {
-    case tradeActions.ADD:
+    case tradeActions.ADD: {
       return { nextId: state.nextId + 1, trades: [...state.trades, payload] };
+    }
 
-    case tradeActions.UPDATE_PL:
+    case tradeActions.UPDATE_PL: {
       const updatedTrades = state.trades.map((trade) => {
         const ltp = payload[trade.instrument.toLowerCase()];
         const multiplier = trade.isBuy ? 1 : -1;
@@ -49,9 +49,12 @@ const tradeReducer = (state, { type, payload }) => {
         };
       });
       return { ...state, trades: updatedTrades };
+    }
 
-    case tradeActions.TOGGLE:
+    case tradeActions.TOGGLE: {
       const { index, exitTime, summary } = payload;
+      const newTrades = cloneDeep(state.trades);
+
       let tradeToUpdate = newTrades[index];
       if (tradeToUpdate.isOpen) {
         tradeToUpdate = {
@@ -80,32 +83,40 @@ const tradeReducer = (state, { type, payload }) => {
 
       newTrades[index] = tradeToUpdate;
       return { ...state, trades: newTrades };
+    }
 
-    case tradeActions.DELETE:
+    case tradeActions.DELETE: {
       return {
         ...state,
         trades: state.trades.filter((_, index) => index !== payload),
       };
+    }
 
-    case tradeActions.TOGGLE_TYPE:
+    case tradeActions.TOGGLE_TYPE: {
+      const newTrades = cloneDeep(state.trades);
       const tradeToToggle = newTrades[payload];
+
       tradeToToggle.isBuy = !tradeToToggle.isBuy;
       tradeToToggle.pL = tradeToToggle.pL * -1;
       newTrades[payload] = tradeToToggle;
       return { ...state, trades: newTrades };
+    }
 
-    case tradeActions.UPDATE_NOTE:
+    case tradeActions.UPDATE_NOTE: {
+      const newTrades = cloneDeep(state.trades);
       const { id, notes } = payload;
-      const oldTradeIndex = state.trades.findIndex((trade) => trade.id === id);
-      if (oldTradeIndex !== -1) {
-        const updatedTrade = newTrades[oldTradeIndex];
+      const tradeIndex = state.trades.findIndex((trade) => trade.id === id);
+      if (tradeIndex !== -1) {
+        const updatedTrade = newTrades[tradeIndex];
         updatedTrade.notes = notes;
-        newTrades[oldTradeIndex] = updatedTrade;
+        newTrades[tradeIndex] = updatedTrade;
       }
       return { ...state, trades: newTrades };
+    }
 
-    default:
+    default: {
       return state;
+    }
   }
 };
 
