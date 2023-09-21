@@ -88,7 +88,7 @@ export default function Journal() {
     []
   );
 
-  const handleClick = useCallback(() => fileInputRef.current.click(), []);
+  const handleUpload = useCallback(() => fileInputRef.current.click(), []);
 
   const handleFileUpload = useCallback(
     async (event) => {
@@ -160,7 +160,7 @@ export default function Journal() {
           shape="circle"
           size="large"
           icon={<UploadOutlined />}
-          onClick={handleClick}
+          onClick={handleUpload}
         />
         <input
           ref={fileInputRef}
