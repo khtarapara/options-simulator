@@ -10,6 +10,7 @@ export const StyledTable = styled.table`
     padding: 10px;
     text-align: center;
   }
+  ${(props) => props.css && props.css}
 `;
 
 export const StyledTableHead = styled.thead`

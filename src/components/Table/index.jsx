@@ -14,9 +14,19 @@ import { isFn } from "../../utils/utils";
 const get = (obj, key, args) => (isFn(obj[key]) ? obj[key](args) : obj[key]);
 
 export const Table = React.forwardRef(
-  ({ data, columns, css: cssProp, disableFooter }, ref) => {
+  (
+    {
+      data,
+      columns,
+      css: cssProp,
+      disableFooter,
+      upperShowMore,
+      lowerShowMore,
+    },
+    ref
+  ) => {
     return (
-      <StyledTable ref={ref}>
+      <StyledTable ref={ref} css={get(cssProp, "table")}>
         <StyledTableHead css={get(cssProp, "head")}>
           <tr>
             {columns.map((column) => (
@@ -30,6 +40,11 @@ export const Table = React.forwardRef(
           </tr>
         </StyledTableHead>
         <tbody>
+          {lowerShowMore && (
+            <tr>
+              <td colSpan={columns.length}>{upperShowMore}</td>
+            </tr>
+          )}
           {data.length ? (
             data.map((row, index) => {
               return (
@@ -53,6 +68,11 @@ export const Table = React.forwardRef(
                 <center>No Data Available</center>
               </StyledTableData>
             </StyledTableRow>
+          )}
+          {lowerShowMore && (
+            <tr>
+              <td colSpan={columns.length}>{lowerShowMore}</td>
+            </tr>
           )}
         </tbody>
         {!disableFooter && (
@@ -82,6 +102,8 @@ Table.propTypes = {
   data: PropTypes.array.isRequired,
   css: PropTypes.object,
   disableFooter: PropTypes.bool,
+  upperShowMore: PropTypes.node,
+  lowerShowMore: PropTypes.node,
 };
 
 Table.defaultProps = {
@@ -95,4 +117,6 @@ Table.defaultProps = {
     foot: css``,
     footer: () => css``,
   },
+  upperShowMore: null,
+  lowerShowMore: null,
 };

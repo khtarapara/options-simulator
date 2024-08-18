@@ -6,6 +6,8 @@ import Root from "./Root";
 import StraddleChart from "./pages/StraddleChart";
 import StrangleChart from "./pages/StrangleChart";
 import Journal from "./pages/Journal";
+import BackTest from "./pages/BackTest";
+import { AlgoBacktest } from "./pages/AlgoBacktest";
 
 export default function Router() {
   return (
@@ -17,6 +19,8 @@ export default function Router() {
           <Route path="/straddle-chart" element={<StraddleChart />} />
           <Route path="/strangle-chart" element={<StrangleChart />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/backtest" element={<BackTest />} />
+          <Route path="/algo-backtest" element={<AlgoBacktest />} />
         </Route>
       </Routes>
     </BrowserRouter>

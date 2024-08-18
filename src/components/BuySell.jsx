@@ -6,6 +6,8 @@ const Button = styled.button`
   border-radius: 3px;
   color: ${(props) => (props.isBuy ? "#66A782" : "#CD6F6F")};
   border: 1px solid ${(props) => (props.isBuy ? "#66A782" : "#CD6F6F")};
+
+  ${(props) => props.css && props.css}
 `;
 
 const Span = styled.span`
@@ -14,6 +16,8 @@ const Span = styled.span`
   padding: 2px 5px;
   color: ${(props) => (props.isBuy ? "#66A782" : "#CD6F6F")};
   border: 1px solid ${(props) => (props.isBuy ? "#66A782" : "#CD6F6F")};
+
+  ${(props) => props.css && props.css}
 `;
 
 export const BuySellButton = ({ isBuy, ...rest }) => {

@@ -20,6 +20,14 @@ const items = [
     label: <Link to="/journal">Journal</Link>,
     key: "journal",
   },
+  {
+    label: <Link to="/backtest">Backtest</Link>,
+    key: "backtest",
+  },
+  {
+    label: <Link to="/algo-backtest">Algo Backtest</Link>,
+    key: "algo-backtest",
+  },
 ];
 
 export default function Navbar() {
